@@ -79,7 +79,13 @@ public class SquareRender {
         VertexBufferObject vbo = new VertexBufferObject();
         try (MemoryStack stack = MemoryStack.stackPush()) {
             FloatBuffer verBuf = stack.mallocFloat(4 * 6);
-            verBuf.put(vertex);
+            //verBuf.put(vertex);
+            verBuf.put(0f).put(1.0f).put(0f).put(1.0f);
+            verBuf.put(1.0f).put(0f).put(1.0f).put(0f);
+            verBuf.put(0f).put(0f).put(0f).put(0f);
+            verBuf.put(0f).put(1.0f).put(0f).put(1.0f);
+            verBuf.put(1.0f).put(1.0f).put(1.0f).put(1.0f);
+            verBuf.put(1.0f).put(0f).put(1.0f).put(0f);
             verBuf.flip();
             vbo.bind(GL_ARRAY_BUFFER);
             vbo.uploadData(GL_ARRAY_BUFFER, verBuf, GL_STATIC_DRAW);
