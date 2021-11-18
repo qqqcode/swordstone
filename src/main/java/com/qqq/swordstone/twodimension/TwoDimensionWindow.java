@@ -22,9 +22,10 @@ public class TwoDimensionWindow {
     float lastFrame = 0.0f;
 
 
-    SquareRender backgroud;
+    SquareRender squareRender;
 
-    SquareRender fire;
+    GameObject fire;
+
 
     TwoDimensionWindow(int width, int height) {
         this.width = 800;
@@ -52,9 +53,8 @@ public class TwoDimensionWindow {
         ResourceManager.loadTexture(Constant.resources + "textures/awesomeface.png", "face");
         ResourceManager.loadTexture(Constant.resources + "textures/img_4.png", "fire");
 
-        backgroud = new SquareRender(ResourceManager.getShader("square"));
-
-        fire = new SquareRender(ResourceManager.getShader("square"));
+        squareRender = new SquareRender(ResourceManager.getShader("square"));
+        fire = new GameObject(ResourceManager.getTexture("fire"), new Vector2f(this.width / 2, this.height / 2), new Vector2f(50.0f, 70.0f), new Vector3f(1), 0f);
     }
 
     public void show() {
@@ -73,16 +73,16 @@ public class TwoDimensionWindow {
 
         ShaderProgram square = ResourceManager.getShader("square");
         square.use();
-        square.setUniform1f("texturePos",0f);
-        square.setUniform1f("textureXClip",1.0f);
-        backgroud.draw2D(this.width, this.height, new Vector2f(0.0f, 0.0f), new Vector2f(this.width, this.height), 0.0f, new Vector3f(1), ResourceManager.getTexture("background"));
+        square.setUniform1f("texturePos", 0f);
+        square.setUniform1f("textureXClip", 1.0f);
+        squareRender.draw2D(this.width, this.height, new Vector2f(0.0f, 0.0f), new Vector2f(this.width, this.height), 0.0f, new Vector3f(1), ResourceManager.getTexture("background"));
 
 
         square.use();
         float clip = 12f;
-        square.setUniform1f("texturePos",c/clip);
-        square.setUniform1f("textureXClip",clip);
-        fire.draw2D(this.width,this.height,new Vector2f(this.width/2,this.height/2),new Vector2f(50.0f,70.0f),0f,new Vector3f(1.0f),ResourceManager.getTexture("fire"));
+        square.setUniform1f("texturePos", c / clip);
+        square.setUniform1f("textureXClip", clip);
+        fire.drawSquare(squareRender, this.width, this.height);
     }
 
     public void loop() {
