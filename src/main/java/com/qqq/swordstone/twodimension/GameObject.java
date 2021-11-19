@@ -31,4 +31,12 @@ public class GameObject {
     public void move(float x, float y, float speed, float deltaTime) {
         this.position.set(this.position.x() + x * speed * deltaTime, this.position.y() + y * speed * deltaTime);
     }
+
+    public Vector2f getPosition() {
+        return position;
+    }
+
+    public void setPosition(Vector2f position) {
+        this.position = position;
+    }
 }
