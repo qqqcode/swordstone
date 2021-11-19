@@ -1,6 +1,5 @@
 package com.qqq.swordstone.twodimension;
 
-import com.qqq.swordstone.graphic.ShaderProgram;
 import com.qqq.swordstone.graphic.Texture;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -25,8 +24,11 @@ public class GameObject {
         this.rotate = rotate;
     }
 
-    public void drawSquare(SquareRender render, int windowWidth, int windowheight) {
-        render.draw2D(windowWidth, windowheight, this.position, this.size, this.rotate, this.color, this.texture);
+    public void drawSquare(SquareRender render, int windowWidth, int windowHeight) {
+        render.draw2D(windowWidth, windowHeight, this.position, this.size, this.rotate, this.color, this.texture);
     }
 
+    public void move(float x, float y, float speed, float deltaTime) {
+        this.position.set(this.position.x() + x * speed * deltaTime, this.position.y() + y * speed * deltaTime);
+    }
 }

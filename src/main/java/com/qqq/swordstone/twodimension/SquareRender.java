@@ -52,10 +52,12 @@ public class SquareRender {
     public void draw2D(int width, int height, Vector2f position, Vector2f size, float rotate, Vector3f color,Texture texture) {
         shaderProgram.use();
 
+        //正交视角projection
         Matrix4f projection = new Matrix4f().ortho(0.0f, width, height, 0.0f, -1.0f, 1.0f);
         shaderProgram.setUniform1i("image", 0);
         shaderProgram.setUniformMatrix4fv("projection", projection);
 
+        //方块位置和大小
         Matrix4f model = new Matrix4f();
         model.translate(new Vector3f(position, 0.0f));
         model.translate(new Vector3f(0.5f * size.x, 0.5f * size.y, 0.0f));
@@ -79,13 +81,7 @@ public class SquareRender {
         VertexBufferObject vbo = new VertexBufferObject();
         try (MemoryStack stack = MemoryStack.stackPush()) {
             FloatBuffer verBuf = stack.mallocFloat(4 * 6);
-            //verBuf.put(vertex);
-            verBuf.put(0f).put(1.0f).put(0f).put(1.0f);
-            verBuf.put(1.0f).put(0f).put(1.0f).put(0f);
-            verBuf.put(0f).put(0f).put(0f).put(0f);
-            verBuf.put(0f).put(1.0f).put(0f).put(1.0f);
-            verBuf.put(1.0f).put(1.0f).put(1.0f).put(1.0f);
-            verBuf.put(1.0f).put(0f).put(1.0f).put(0f);
+            verBuf.put(vertex);
             verBuf.flip();
             vbo.bind(GL_ARRAY_BUFFER);
             vbo.uploadData(GL_ARRAY_BUFFER, verBuf, GL_STATIC_DRAW);

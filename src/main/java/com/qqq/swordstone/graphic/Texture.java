@@ -1,14 +1,24 @@
 package com.qqq.swordstone.graphic;
 
+import com.qqq.swordstone.util.Constant;
+import com.qqq.swordstone.util.IOUtil;
+import org.apache.commons.io.IOUtils;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.system.MemoryStack;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
+import static com.qqq.swordstone.util.IOUtil.ioResourceToByteBuffer;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_CLAMP_TO_BORDER;
 import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.stb.STBImage.*;
+import static org.lwjgl.system.MemoryUtil.memAddress;
+import static org.lwjgl.system.MemoryUtil.memUTF8;
 
 public class Texture {
     private final int id;
@@ -24,7 +34,9 @@ public class Texture {
      */
     private int height;
 
-    /** Creates a texture. */
+    /**
+     * Creates a texture.
+     */
     public Texture() {
         id = glGenTextures();
     }
@@ -79,7 +91,7 @@ public class Texture {
         glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
     }
 
-    public void uploadData(int internalFormat, int width, int height, int format,int type, ByteBuffer data) {
+    public void uploadData(int internalFormat, int width, int height, int format, int type, ByteBuffer data) {
         glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, data);
     }
 
@@ -144,10 +156,9 @@ public class Texture {
      * @param width  Width of the texture
      * @param height Height of the texture
      * @param data   Picture Data in RGBA format
-     *
      * @return Texture from the specified data
      */
-    public static Texture createTexture(int width, int height, ByteBuffer data,boolean tile) {
+    public static Texture createTexture(int width, int height, ByteBuffer data, boolean tile) {
         Texture texture = new Texture();
         texture.setWidth(width);
         texture.setHeight(height);
@@ -168,52 +179,50 @@ public class Texture {
      * Load texture from file.
      *
      * @param path File path of the texture
-     *
      * @return Texture from specified file
      */
     public static Texture loadTexture(String path) {
-        return loadTexture(path,false);
+        return loadTexture(path, false);
     }
 
-    public static Texture loadTexture(String path,boolean tile) {
+    public static Texture loadTexture(String path, boolean tile) {
         ByteBuffer image;
         int width, height;
         try (MemoryStack stack = MemoryStack.stackPush()) {
+            InputStream resourceAsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
             IntBuffer w = stack.mallocInt(1);
             IntBuffer h = stack.mallocInt(1);
             IntBuffer comp = stack.mallocInt(1);
-
+            ByteBuffer byteBuffer = IOUtil.inputSteamToByteBuffer(resourceAsStream, 8192);
             stbi_set_flip_vertically_on_load(true);
-            image = stbi_load(path, w, h, comp, 4);
+            image = stbi_load_from_memory(byteBuffer, w, h, comp, 4);
             if (image == null) {
-                throw new RuntimeException("Failed to load a texture file!"
-                        + System.lineSeparator() + stbi_failure_reason());
+                throw new RuntimeException("Failed to load a texture file!" + System.lineSeparator() + stbi_failure_reason());
             }
             width = w.get();
             height = h.get();
         }
 
-        return createTexture(width, height, image,tile);
+        return createTexture(width, height, image, tile);
     }
 
-    public static Texture generateAttachmentTexture(boolean depth, boolean stencil ,int width,int height) {
+    public static Texture generateAttachmentTexture(boolean depth, boolean stencil, int width, int height) {
 
         int attachment_type = GL_RGB;
-        if(!depth && !stencil) {
+        if (!depth && !stencil) {
             attachment_type = GL_RGB;
-        }
-        else if(depth && !stencil) {
+        } else if (depth && !stencil) {
             attachment_type = GL_DEPTH_COMPONENT;
-        } else if(!depth && stencil) {
+        } else if (!depth && stencil) {
             attachment_type = GL_STENCIL_INDEX;
         }
 
         Texture texture = new Texture();
         texture.bind();
-        if(!depth && !stencil){
-            texture.uploadData(attachment_type,width,height,attachment_type,GL_UNSIGNED_BYTE,null);
+        if (!depth && !stencil) {
+            texture.uploadData(attachment_type, width, height, attachment_type, GL_UNSIGNED_BYTE, null);
         } else {
-            texture.uploadData(GL_DEPTH24_STENCIL8, width, height,GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8,null);
+            texture.uploadData(GL_DEPTH24_STENCIL8, width, height, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, null);
         }
         texture.setParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         texture.setParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);

@@ -1,6 +1,8 @@
 package com.qqq.swordstone.graphic;
 
 import java.io.*;
+import java.net.URL;
+import java.util.Enumeration;
 
 import static org.lwjgl.opengl.GL20.*;
 
@@ -46,9 +48,9 @@ public class Shader {
     }
 
     public static Shader loadShader(int type, String path) {
+        InputStream resourceAsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
         StringBuilder builder = new StringBuilder();
-        try (InputStream in = new FileInputStream(path);
-             BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resourceAsStream))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 builder.append(line).append("\n");

@@ -5,6 +5,7 @@ package com.qqq.swordstone.util;
 import com.qqq.swordstone.graphic.ShaderProgram;
 import com.qqq.swordstone.graphic.Texture;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,7 +14,7 @@ public class ResourceManager {
     public static Map<String, ShaderProgram> shaders = new HashMap<>();
     public static Map<String, Texture> textures = new HashMap<>();
 
-    public static ShaderProgram loadShader(String vertexShaderName, String fragmentShaderName, String name){
+    public static ShaderProgram loadShader(String vertexShaderName, String fragmentShaderName, String name) {
         ShaderProgram shaderProgram = ShaderUtil.createShaderProgram(vertexShaderName, fragmentShaderName);
         shaders.put(name,shaderProgram);
         return shaderProgram;

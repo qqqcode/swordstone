@@ -5,6 +5,8 @@ package com.qqq.swordstone.util;
 import com.qqq.swordstone.graphic.Shader;
 import com.qqq.swordstone.graphic.ShaderProgram;
 
+import java.io.IOException;
+
 import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
 import static org.lwjgl.opengl.GL20.GL_VERTEX_SHADER;
 
