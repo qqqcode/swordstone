@@ -8,6 +8,8 @@ import org.lwjgl.opengl.GLCapabilities;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class QqqWindow {
@@ -20,6 +22,12 @@ public class QqqWindow {
     boolean vsync;
 
     public QqqWindow(CharSequence title, int width, int height, boolean vsync) {
+        GLFWErrorCallback errorCallback = GLFWErrorCallback.createPrint(System.err);
+        glfwSetErrorCallback(errorCallback);
+        if (!glfwInit()) {
+            throw new IllegalStateException("Unable to initialize GLFW");
+        }
+
         this.width = width;
         this.height = height;
         this.vsync = vsync;
@@ -75,6 +83,11 @@ public class QqqWindow {
         setCursorPosCallback(MouseListener::moustPosCallback);
         setMouseButtonCallback(MouseListener::mouseButtonCallback);
         setScrollCallback(MouseListener::mouseScrollCallback);
+
+        glClearColor(0f, 0f, 0f, 1f);
+        glEnable(GL_CULL_FACE);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
     public void setFramebufferSizeCallback(GLFWFramebufferSizeCallbackI cbfun) {

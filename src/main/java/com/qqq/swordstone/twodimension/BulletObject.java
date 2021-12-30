@@ -14,8 +14,8 @@ public class BulletObject extends GameObject {
 
     public BulletObject(Texture texture, Vector2f position, Vector2f size, Vector3f color, float rotate) {
         super(texture, position, size, color, rotate);
-        this.range = 100.0f;
-        this.shotPos = position;
+        this.range = 1000.0f;
+        this.shotPos = new Vector2f(position.x(),position.y());
         this.destroy = false;
     }
 
@@ -32,11 +32,11 @@ public class BulletObject extends GameObject {
         }
     }
 
-    @Override
-    public void drawSquare(SquareRender render, int windowWidth, int windowHeight) {
-        if (this.destroy) {
-            return;
-        }
-        super.drawSquare(render, windowWidth, windowHeight);
+    public boolean isDestroy() {
+        return destroy;
+    }
+
+    public void setDestroy(boolean destroy) {
+        this.destroy = destroy;
     }
 }

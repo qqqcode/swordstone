@@ -1,22 +1,22 @@
 package com.qqq.swordstone.twodimension;
 
-import com.qqq.swordstone.graphic.QqqWindow;
-import com.qqq.swordstone.graphic.ShaderProgram;
+import com.qqq.swordstone.graphic.*;
 import com.qqq.swordstone.listener.KeyListener;
-import com.qqq.swordstone.util.Constant;
 import com.qqq.swordstone.util.ResourceManager;
+
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 
 public class TwoDimensionWindow {
-
     QqqWindow qqqWindow;
     private int width = 800;
     private int height = 600;
@@ -25,32 +25,25 @@ public class TwoDimensionWindow {
     float lastFrame = 0.0f;
 
 
-    SquareRender squareRender;
     PostProcessor effects;
+    Renderer renderer;
 
     GameObject fire;
+    List<GameObject> enemyList;
 
+    GunObject gun;
 
     TwoDimensionWindow(int width, int height) {
-        this.width = 800;
-        this.height = 600;
+        this.width = width;
+        this.height = height;
         init();
     }
 
     void init() {
-        GLFWErrorCallback errorCallback = GLFWErrorCallback.createPrint(System.err);
-        glfwSetErrorCallback(errorCallback);
-        if (!glfwInit()) {
-            throw new IllegalStateException("Unable to initialize GLFW");
-        }
         //窗口创建
         qqqWindow = new QqqWindow("qqq", this.width, this.height, true);
         //debugProc = GLUtil.setupDebugMessageCallback();
-        qqqWindow.setKeyCallback(KeyListener::keyCallback);
-        glClearColor(0f, 0f, 0f, 1f);
-        glEnable(GL_CULL_FACE);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        //qqqWindow.setKeyCallback(KeyListener::keyCallback);
 
         //资源加载
         //着色器
@@ -61,14 +54,27 @@ public class TwoDimensionWindow {
         ResourceManager.loadTexture("textures/background.jpg", "background");
         ResourceManager.loadTexture("textures/awesomeface.png", "face");
         ResourceManager.loadTexture("textures/img_4.png", "fire");
+        ResourceManager.loadTexture("textures/newImage.png", "box");
 
-        //绘制器
-        squareRender = new SquareRender(ResourceManager.getShader("square"));
-        //特效绘制
+        ResourceManager.loadFontTexture("", "defaultFont");
+
+        //特效
         effects = new PostProcessor(ResourceManager.getShader("postprocessing"), this.width, this.height);
 
+        //渲染器
+        renderer = new Renderer();
+        renderer.init();
+
         //game对象
-        fire = new GameObject(ResourceManager.getTexture("fire"), new Vector2f(this.width / 2, this.height / 2), new Vector2f(50.0f, 70.0f), new Vector3f(1), 0f);
+        fire = new GameObject(ResourceManager.getTexture("box"), new Vector2f(this.width / 2, this.height / 2), new Vector2f(80.0f, 80.0f), new Vector3f(1), 0f);
+        fire.addAnimation(1,0,59,6,10);
+
+        gun = new GunObject(fire, ResourceManager.getTexture("face"));
+
+        enemyList = new ArrayList<>(10);
+        for (int i = 0; i < 10; i++) {
+            enemyList.add(new GameObject(ResourceManager.getTexture("face"), new Vector2f((float) Math.random() * this.height, 0f), new Vector2f(80.0f, 80.0f), new Vector3f(1), 0f));
+        }
     }
 
     public void show() {
@@ -81,48 +87,56 @@ public class TwoDimensionWindow {
         float y = 0.0f;
         if (KeyListener.isKeyPressed(GLFW_KEY_W)) {
             y = -1.0f;
-            effects.shake = true;
-        } else {
-            effects.shake = false;
+            //effects.shake = true;
         }
         if (KeyListener.isKeyPressed(GLFW_KEY_A)) {
-            effects.chaos = true;
             x = -1.0f;
-        } else {
-            effects.chaos = false;
         }
         if (KeyListener.isKeyPressed(GLFW_KEY_S)) {
             y = 1.0f;
-            effects.confuse = true;
-        } else {
-            effects.confuse = false;
         }
         if (KeyListener.isKeyPressed(GLFW_KEY_D)) {
             x = 1.0f;
         }
+
+        if (KeyListener.isKeyPressed(GLFW_KEY_SPACE)) {
+            gun.shot();
+        }
+
         fire.move(x, y, speed, deltaTime);
+
+        gun.update(deltaTime);
+
+        Iterator<GameObject> iterator = enemyList.iterator();
+        while (iterator.hasNext()) {
+            GameObject next = iterator.next();
+            if (gun.collision(next) ) {
+                iterator.remove();
+            }
+        }
     }
 
     public void render() {
 
+        FontTexture defaultFont = ResourceManager.getFontTexture("defaultFont");
         effects.beginRender();
 
-        ShaderProgram square = ResourceManager.getShader("square");
-        square.use();
-        square.setUniform1f("texturePos", 0f);
-        square.setUniform1f("textureXClip", 1.0f);
-        squareRender.draw2D(this.width, this.height, new Vector2f(0.0f, 0.0f), new Vector2f(this.width, this.height), 0.0f, new Vector3f(1), ResourceManager.getTexture("background"));
+        ResourceManager.getTexture("background").bind();
+        renderer.begin();
+        renderer.setModel(new Vector3f(0.0f),new Vector3f(this.width,this.height,1.0f));
+        renderer.drawTextureRegion(0.0f,0.0f,1.0f,1.0f,0.0f,0.0f,1.0f,1.0f,Color.WHITE);
+        renderer.end();
 
+        fire.drawAnimation(renderer,1);
 
-        float currentFrame = (float) glfwGetTime();
-        currentFrame = currentFrame * 10;
-        int c = (int) currentFrame;
-        c = c % 12;
-        square.use();
-        float clip = 12f;
-        square.setUniform1f("texturePos", c / clip);
-        square.setUniform1f("textureXClip", clip);
-        fire.drawSquare(squareRender, this.width, this.height);
+        gun.drawBullets(renderer);
+
+        for (GameObject gameObject : this.enemyList) {
+            gameObject.drawSquare(renderer);
+            gameObject.drawFont(defaultFont,renderer,gameObject.getPosition().x+""+gameObject.getPosition().y,new Vector3f(20f,20f,1f),Color.WHITE);
+        }
+
+        fire.drawFont(defaultFont,renderer,fire.getPosition().x +","+ fire.getPosition().y ,new Vector3f(20f,20f,1f),Color.BLACK);
 
         effects.endRender();
         effects.render((float) glfwGetTime());

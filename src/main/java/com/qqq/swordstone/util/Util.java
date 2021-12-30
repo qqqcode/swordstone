@@ -18,4 +18,12 @@ public class Util {
         return integerList.stream().mapToInt(Integer::valueOf) // Or whatever default you want.
                 .toArray();
     }
+
+    public static float gouGuf(float a, float b) {
+        return (float) Math.sqrt(a * a + b * b);
+    }
+
+    public static double gouGud(double a, double b) {
+        return Math.sqrt(a * a + b * b);
+    }
 }
