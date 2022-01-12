@@ -40,6 +40,8 @@ public class GunObject {
         this.lastTime = v;
         Vector2f position = new Vector2f(holder.getPosition().x(), holder.getPosition().y());
         BulletObject bullet = new BulletObject(this.texture, position, new Vector2f(50.0f), new Vector3f(1.0f), 0f);
+        GameObject.Direct direct = holder.getDirect();
+        bullet.setDirect(direct);
         bullets.add(bullet);
     }
 
@@ -63,11 +65,11 @@ public class GunObject {
         Iterator<BulletObject> iterator = bullets.iterator();
         while (iterator.hasNext()) {
             BulletObject bullet = iterator.next();
-            bullet.move(0f, -1f, this.speed, deltaTime);
+            bullet.move(this.speed, deltaTime);
             if (bullet.isDestroy()) {
                 iterator.remove();
             }
-            if (bullet.getPosition().x + bullet.getSize().x < 0 || bullet.getPosition().y + bullet.getSize().y < 0 ) {
+            if (bullet.getPosition().x + bullet.getSize().x < 0 || bullet.getPosition().y + bullet.getSize().y < 0) {
                 iterator.remove();
             }
         }

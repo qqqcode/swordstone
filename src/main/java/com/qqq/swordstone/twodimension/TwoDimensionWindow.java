@@ -6,7 +6,6 @@ import com.qqq.swordstone.util.ResourceManager;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 
 import java.util.ArrayList;
@@ -17,6 +16,14 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 
 public class TwoDimensionWindow {
+
+    enum State {
+        run,
+        stop,
+        end
+    }
+
+    State state = State.stop;
     QqqWindow qqqWindow;
     private int width = 800;
     private int height = 600;
@@ -30,6 +37,8 @@ public class TwoDimensionWindow {
 
     GameObject fire;
     List<GameObject> enemyList;
+
+    List<GameObject> wallList;
 
     GunObject gun;
 
@@ -67,52 +76,70 @@ public class TwoDimensionWindow {
 
         //game对象
         fire = new GameObject(ResourceManager.getTexture("box"), new Vector2f(this.width / 2, this.height / 2), new Vector2f(80.0f, 80.0f), new Vector3f(1), 0f);
-        fire.addAnimation(1,0,59,6,10);
+        fire.addAnimation(1, 0, 59, 6, 10);
 
         gun = new GunObject(fire, ResourceManager.getTexture("face"));
 
         enemyList = new ArrayList<>(10);
         for (int i = 0; i < 10; i++) {
-            enemyList.add(new GameObject(ResourceManager.getTexture("face"), new Vector2f((float) Math.random() * this.height, 0f), new Vector2f(80.0f, 80.0f), new Vector3f(1), 0f));
+            enemyList.add(new GameObject(ResourceManager.getTexture("face"), new Vector2f((float) Math.random() * this.height, 0f), new Vector2f(80.0f, 80.0f), new Vector3f(1), 0f, GameObject.Direct.down));
         }
+
+        wallList = new ArrayList<>();
+
     }
 
     public void show() {
         qqqWindow.showWindow();
+        state = State.run;
     }
 
     public void update(float deltaTime) {
+
+        if (state == State.end || state == State.stop)  return;
+
         float speed = 100.0f;
         float x = 0.0f;
         float y = 0.0f;
+        GameObject.Direct direct = fire.getDirect();
         if (KeyListener.isKeyPressed(GLFW_KEY_W)) {
             y = -1.0f;
             //effects.shake = true;
+            direct = GameObject.Direct.up;
         }
         if (KeyListener.isKeyPressed(GLFW_KEY_A)) {
             x = -1.0f;
+            direct = GameObject.Direct.left;
         }
         if (KeyListener.isKeyPressed(GLFW_KEY_S)) {
             y = 1.0f;
+            direct = GameObject.Direct.down;
         }
         if (KeyListener.isKeyPressed(GLFW_KEY_D)) {
             x = 1.0f;
+            direct = GameObject.Direct.right;
         }
 
-        if (KeyListener.isKeyPressed(GLFW_KEY_SPACE)) {
-            gun.shot();
-        }
-
-        fire.move(x, y, speed, deltaTime);
+//        if (KeyListener.isKeyPressed(GLFW_KEY_SPACE)) {
+//            gun.shot();
+//        }
+        gun.shot();
+        fire.move(x, y, speed, deltaTime, direct);
 
         gun.update(deltaTime);
 
         Iterator<GameObject> iterator = enemyList.iterator();
         while (iterator.hasNext()) {
             GameObject next = iterator.next();
-            if (gun.collision(next) ) {
+            if (gun.collision(next)) {
                 iterator.remove();
+            } else {
+                next.move(10f, deltaTime);
             }
+        }
+
+        if (enemyList.isEmpty()) {
+            state = State.end;
         }
     }
 
@@ -123,20 +150,20 @@ public class TwoDimensionWindow {
 
         ResourceManager.getTexture("background").bind();
         renderer.begin();
-        renderer.setModel(new Vector3f(0.0f),new Vector3f(this.width,this.height,1.0f));
-        renderer.drawTextureRegion(0.0f,0.0f,1.0f,1.0f,0.0f,0.0f,1.0f,1.0f,Color.WHITE);
+        renderer.setModel(new Vector3f(0.0f), new Vector3f(this.width, this.height, 1.0f));
+        renderer.drawTextureRegion(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, Color.WHITE);
         renderer.end();
 
-        fire.drawAnimation(renderer,1);
+        fire.drawAnimation(renderer, 1);
 
         gun.drawBullets(renderer);
 
         for (GameObject gameObject : this.enemyList) {
             gameObject.drawSquare(renderer);
-            gameObject.drawFont(defaultFont,renderer,gameObject.getPosition().x+""+gameObject.getPosition().y,new Vector3f(20f,20f,1f),Color.WHITE);
+            gameObject.drawFont(defaultFont, renderer, gameObject.getPosition().x + "" + gameObject.getPosition().y, new Vector3f(20f, 20f, 1f), Color.WHITE);
         }
 
-        fire.drawFont(defaultFont,renderer,fire.getPosition().x +","+ fire.getPosition().y ,new Vector3f(20f,20f,1f),Color.BLACK);
+        fire.drawFont(defaultFont, renderer, fire.getPosition().x + "," + fire.getPosition().y, new Vector3f(20f, 20f, 1f), Color.BLACK);
 
         effects.endRender();
         effects.render((float) glfwGetTime());

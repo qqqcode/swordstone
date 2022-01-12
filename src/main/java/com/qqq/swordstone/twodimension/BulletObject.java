@@ -21,6 +21,15 @@ public class BulletObject extends GameObject {
 
     public void move(float x, float y, float speed, float deltaTime) {
         super.move(x, y, speed, deltaTime);
+        destroied();
+    }
+
+    public void move(float speed, float deltaTime) {
+        super.move(speed,deltaTime);
+        destroied();
+    }
+
+    void destroied() {
         Vector2f position = this.getPosition();
         float x2 = this.shotPos.x();
         float y2 = this.shotPos.y();
