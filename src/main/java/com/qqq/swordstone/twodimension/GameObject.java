@@ -62,6 +62,22 @@ public class GameObject {
         renderer.end();
     }
 
+    public void drawSquare(Renderer renderer,Vector3f position) {
+        texture.bind();
+        renderer.begin();
+        renderer.setModel(position, new Vector3f(this.size, 1.0f));
+        renderer.drawTextureRegion(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, Color.WHITE);
+        renderer.end();
+    }
+
+    public void drawSquare(Renderer renderer,Vector3f position,Vector3f size) {
+        texture.bind();
+        renderer.begin();
+        renderer.setModel(position, size);
+        renderer.drawTextureRegion(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, Color.WHITE);
+        renderer.end();
+    }
+
     public void drawSquare(Renderer renderer, int eachWidth, int eachHeight, int start) {
         texture.bind();
         renderer.begin();
@@ -107,6 +123,9 @@ public class GameObject {
     public void drawFont(FontTexture fontTexture, Renderer renderer, CharSequence text, Vector3f size, Color color) {
         fontTexture.drawText(renderer, text, new Vector3f(this.position.x, this.position.y, 1.0f), size, color);
     }
+    public void drawFont(FontTexture fontTexture, Renderer renderer, CharSequence text, Vector3f position,Vector3f size, Color color) {
+        fontTexture.drawText(renderer, text, position, size, color);
+    }
 
     public void move(float x, float y, float speed, float deltaTime) {
         this.position.set(this.position.x() + x * speed * deltaTime, this.position.y() + y * speed * deltaTime);
@@ -147,6 +166,23 @@ public class GameObject {
 
         float a = position.x() + size.x() / 2.0f - (this.position.x() + this.size.x() / 2.0f);
         float b = position.y() + size.y() / 2.0f - (this.position.y() + this.size.y() / 2.0f);
+        float v2 = Util.gouGuf(a, b);
+
+        if (v + v1 > v2) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isCollision(GameObject gameObject,Vector3f positionOffset) {
+        Vector2f position = gameObject.getPosition();
+        Vector2f size = gameObject.getSize();
+
+        float v = size.x / 2.0f;//Util.gouGuf(size.x()/2.0f, size.y()/2.0f);
+        float v1 = this.size.x / 2.0f;//Util.gouGuf(this.size.x()/2.0f, this.size.y()/2.0f);
+
+        float a = position.x() + positionOffset.x + size.x() / 2.0f - (this.position.x() + this.size.x() / 2.0f);
+        float b = position.y() + positionOffset.y + size.y() / 2.0f - (this.position.y() + this.size.y() / 2.0f);
         float v2 = Util.gouGuf(a, b);
 
         if (v + v1 > v2) {

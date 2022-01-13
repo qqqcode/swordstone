@@ -102,9 +102,6 @@ public class PostProcessor {
         this.postProcessingShader.setUniform1f("confuse", this.confuse ? 1 : 0);
         this.postProcessingShader.setUniform1f("chaos", this.chaos ? 1 : 0);
         this.postProcessingShader.setUniform1f("shake", this.shake ? 1 : 0);
-        if (shake) {
-            System.out.println("shaking");
-        }
 
         glActiveTexture(GL_TEXTURE0);
         this.texture.bind();

@@ -3,6 +3,7 @@ package com.qqq.swordstone.graphic;
 import com.qqq.swordstone.util.Constant;
 import com.qqq.swordstone.util.IOUtil;
 import org.apache.commons.io.IOUtils;
+import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.system.MemoryStack;
 
@@ -230,4 +231,11 @@ public class Texture {
         return texture;
     }
 
+    public static void drawTexture(Texture texture,Renderer renderer,Vector3f position,Vector3f size) {
+        texture.bind();
+        renderer.begin();
+        renderer.setModel(position,size);
+        renderer.drawTextureRegion(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, Color.WHITE);
+        renderer.end();
+    }
 }

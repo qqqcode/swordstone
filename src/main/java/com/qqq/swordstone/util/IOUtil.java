@@ -80,6 +80,11 @@ public class IOUtil {
         return buffer;
     }
 
+    public static BufferedReader getBufferedReader(String resource) {
+        InputStream resourceAsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
+        return new BufferedReader(new InputStreamReader(resourceAsStream));
+    }
+
     public static BufferedImage getPic(String path){
         BufferedImage bufferImage = null;
         try {

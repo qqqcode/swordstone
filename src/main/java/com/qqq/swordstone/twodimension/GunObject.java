@@ -89,4 +89,19 @@ public class GunObject {
         }
         return false;
     }
+
+    public boolean collision(GameObject gameObject, Vector3f positionOffset) {
+        if (bullets.size() <= 0) {
+            return false;
+        }
+        Iterator<BulletObject> iterator = bullets.iterator();
+        while (iterator.hasNext()) {
+            BulletObject next = iterator.next();
+            if (next.isCollision(gameObject, positionOffset)) {
+                next.setDestroy(true);
+                return true;
+            }
+        }
+        return false;
+    }
 }
