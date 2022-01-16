@@ -78,6 +78,7 @@ public class TwoDimensionWindow {
         ResourceManager.loadTexture("textures/newImage.png", "box");
         ResourceManager.loadTexture("textures/img.png","wall");
         ResourceManager.loadTexture("textures/img_2.png","wood");
+        ResourceManager.loadTexture("textures/fire.png","fire");
 
         ResourceManager.loadFontTexture("", "defaultFont");
 
@@ -89,8 +90,8 @@ public class TwoDimensionWindow {
         renderer.init();
 
         //game对象
-        fire = new GameObject(ResourceManager.getTexture("box"), new Vector2f(this.width / 2, this.height / 2), new Vector2f(80.0f, 80.0f), new Vector3f(1), 0f);
-        fire.addAnimation(1, 0, 59, 6, 10);
+        fire = new GameObject(ResourceManager.getTexture("fire"), new Vector2f(this.width / 2, this.height / 2), new Vector2f(80.0f, 80.0f), new Vector3f(1), 0f);
+        fire.addAnimation(1, 0, 64, 8, 8);
 
         gun = new GunObject(fire, ResourceManager.getTexture("face"));
 
